@@ -1,22 +1,45 @@
-{ lib, stdenv, fetchFromGitHub, oathToolkit }:
+{
+  lib
+  , pkgs
+  , stdenv
+  , buildPerlPackage
+  , fetchFromGitHub
+}: let
+  oathPerlKit = buildPerlPackage rec {
+    pname = "oathPerlKit";
+    version = "1.5";
 
-stdenv.mkDerivation rec {
+    src = fetchFromGitHub {
+      owner = "baierjan";
+      repo = "Pass-OTP-perl";
+      rev = "v${version}";
+      sha256 = "sha256-crhC13RZeK2m0dJwkMbWbu/C5aL2Upcq0t8zRiMv4ZY=";
+    };
+
+    buildInputs = with pkgs; [
+      oathToolkit
+      perl534Packages.ConvertBase32
+      perl534Packages.DigestHMAC
+    ];
+  };
+in stdenv.mkDerivation rec {
   pname = "pass-otp";
-  version = "1.2.0";
+  version = "1.1.2";
 
   src = fetchFromGitHub {
     owner = "tadfisher";
     repo = "pass-otp";
-    rev = "v${version}";
-    sha256 = "0cpqrf3939hcvwg7sd8055ghc8x964ilimlri16czzx188a9jx9v";
+    rev = "869828656788bd3d6f0b2fea02760d8489f4f7c1";
+    sha256 = "sha256-t153Vt8vdApwi+C8bpwic6j0bU3VicjHALaUxysjq/M=";
   };
 
-  buildInputs = [ oathToolkit ];
+  buildInputs = [ oathPerlKit ];
 
   dontBuild = true;
 
   patchPhase = ''
-    sed -i -e 's|OATH=\$(which oathtool)|OATH=${oathToolkit}/bin/oathtool|' otp.bash
+    sed -i -e 's|OATH=\$(which oathtool)|OATH=${oathPerlKit}/bin/oathtool|' otp.bash
+    sed -i -e 's|OTPTOOL=\$(which otptool)|OATH=${oathPerlKit}/bin/otptool|' otp.bash
   '';
 
   installFlags = [ "PREFIX=$(out)"
