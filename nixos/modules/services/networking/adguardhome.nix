@@ -13,8 +13,8 @@ let
   ] ++ cfg.extraArgs);
 
   baseConfig = {
-    bind_host = cfg.host;
-    bind_port = cfg.port;
+    bind_hosts = cfg.host;
+    port = cfg.port;
   };
 
   configFile = pkgs.writeTextFile {
